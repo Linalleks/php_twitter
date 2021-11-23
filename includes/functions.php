@@ -6,6 +6,14 @@ function get_url($page = '') {
   return HOST . "/$page";
 }
 
+function get_page_title($title = '') {
+  if (!empty($title)) {
+    return SITE_NAME . " - $title";
+  } else {
+    return HOST . "/$page";
+  }
+}
+
 function db() {
   try {
     return new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS,
@@ -28,6 +36,31 @@ function db_query($sql, $exec = false) {
 }
 
 function get_posts($user_id = 0) {
-  if ($user_id > 0) return db_query("SELECT posts.*, users.login, users.name, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id WHERE posts.user_id = $user_id;");
-  return db_query("SELECT posts.*, users.login, users.name, users.avatar FROM `posts` JOIN `users`ON users.id = posts.user_id;");
+  if ($user_id > 0) return db_query("SELECT posts.*, users.login, users.name, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id WHERE posts.user_id = $user_id;")->fetchAll();
+  return db_query("SELECT posts.*, users.login, users.name, users.avatar FROM `posts` JOIN `users`ON users.id = posts.user_id;")->fetchAll();
+}
+
+function get_user_info($login) {
+  return db_query("SELECT * FROM `users` WHERE `login` = '$login';")->fetch();
+}
+
+function add_user($login, $pass) {
+  $login = trim($login);
+  $name = ucfirst($login);
+  $password = password_hash($pass, PASSWORD_DEFAULT);
+
+  return db_query("INSERT INTO `users` (`id`, `login`, `pass`, `name`) VALUES (NULL, '$login', '$password', '$name');", true);
+}
+
+function register_user($auth_data) {
+  debug($auth_data,true);
+}
+
+function login($auth_data) {
+
+}
+
+function debug($var, $stop = false) {
+  var_dump($var);
+  if ($stop) die;
 }
